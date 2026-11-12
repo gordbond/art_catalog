@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "art-catalog"
+version = "0.1.0"
+description = "Manage a painting inventory and publish it as a static gallery."
+requires-python = ">=3.11"
+dependencies = ["Jinja2>=3.1", "Pillow>=10", "reportlab>=4"]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[project.scripts]
+art = "art.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+art = ["templates/*", "static/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

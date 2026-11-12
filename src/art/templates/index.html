@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ config.title }} — {{ config.tagline }}</title>
+  <meta name="description" content="{{ config.tagline }} by {{ config.title }}.">
+  <meta property="og:title" content="{{ config.title }} — {{ config.tagline }}">
+  {% if works %}<meta property="og:image" content="{{ works[0].thumb }}">{% endif %}
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <h1>{{ config.title }}</h1>
+    <p class="tagline">{{ config.tagline }}</p>
+    {% if config.contact_email %}<p><a href="mailto:{{ config.contact_email }}">Inquiries</a></p>{% endif %}
+  </header>
+
+  <form class="filters" onsubmit="return false" aria-label="Filter works">
+    {% if locations|length > 1 %}
+    <div class="filter-group" data-filter-location role="group" aria-label="Location">
+      <button type="button" data-value="all" aria-pressed="true">All</button>
+      {% for key, label in locations %}
+      <button type="button" data-value="{{ key }}" aria-pressed="false">{{ label }}</button>
+      {% endfor %}
+    </div>
+    {% endif %}
+    <label class="filter-group">
+      <span>Size</span>
+      <select id="size-filter">
+        <option value="all">Any size</option>
+        {% for key, label, lo, hi in size_buckets %}
+        <option value="{{ key }}"{% if lo is not none %} data-min="{{ lo }}"{% endif %}{% if hi is not none %} data-max="{{ hi }}"{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <p id="count" class="count" aria-live="polite"></p>
+  </form>
+
+  <main>
+    <div class="grid">
+      {% for w in works %}
+      {% set p = w.p %}
+      <article class="work" data-location="{{ p.location }}" data-size="{{ p.longest }}" data-alt="{{ p.title }}{% if p.medium %}, {{ p.medium }}{% endif %}">
+        <a href="{{ w.full }}">
+          <img src="{{ w.thumb }}" width="{{ w.tw }}" height="{{ w.th }}" loading="lazy" alt="{{ p.title }}{% if p.medium %}, {{ p.medium }}{% endif %}">
+        </a>
+        <div class="caption">
+          <h2>{{ p.title }}</h2>
+          <p>{{ p.medium }}{% if p.medium %}<br>{% endif %}{{ p.size_label }}{% if p.year %}, {{ p.year }}{% endif %}</p>
+          {% if p.status_label or w.price %}
+          <p class="status{% if p.status == 'sold' %} sold{% elif p.status == 'on_hold' %} hold{% endif %}">{{ p.status_label }}{% if p.status_label and w.price %} · {% endif %}{{ w.price }}</p>
+          {% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    <p id="empty" class="empty" hidden>No works match these filters.</p>
+  </main>
+
+  <dialog id="lightbox" aria-label="Enlarged painting">
+    <figure>
+      <img alt="">
+      <figcaption></figcaption>
+    </figure>
+    <button type="button" class="lb-btn lb-prev" aria-label="Previous">‹</button>
+    <button type="button" class="lb-btn lb-next" aria-label="Next">›</button>
+    <button type="button" class="lb-btn lb-close" aria-label="Close">×</button>
+  </dialog>
+
+  <footer class="site-footer">© {{ config.title }}</footer>
+  <script src="assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+# Settings for `art build`. Prices stay hidden on the public site unless you flip this.
+title = "Gord Bond"
+tagline = "Paintings"
+domain = "gordbondart.com"
+show_prices = false
+currency = "$"
+# Shown as an "Inquiries" link on the site. Leave blank to omit it.
+contact_email = ""

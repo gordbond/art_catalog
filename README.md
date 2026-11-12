@@ -9,6 +9,7 @@ art list --min-size 40 --pdf   # big works as art-catalog.pdf (or --pdf my.pdf)
 art list --prices              # prices are hidden unless asked for (also works with --pdf)
 art check                      # images vs. catalog.csv (exit 1 on errors)
 art build                      # static site -> dist/   (--clean, --prices/--no-prices)
+art deploy                     # rebuild, then publish dist/ to the gh-pages branch
 ```
 
 ## Setup
@@ -29,10 +30,14 @@ pytest
 
 ## Publishing on GitHub Pages
 
-1. Push to `https://github.com/gordbond/art_catalog.git` on branch `main`.
-2. Repo → Settings → Pages → Source: **GitHub Actions**. The workflow in `.github/workflows/pages.yml`
-   runs `art check` + `art build` on every push and deploys `dist/`.
-   Without a custom domain the site is at `https://gordbond.github.io/art_catalog/`.
+Originals never leave your machine. `art deploy` rebuilds `dist/` and force-pushes only its contents
+(resized copies + HTML) to the `gh-pages` branch of `origin`. Source code and `catalog.csv` go on `main`;
+`paintings/studio|agh/*` images are git-ignored.
+
+Update loop: edit the CSV / add an image → `art check` → `art deploy`.
+
+One-time: repo → Settings → Pages → Source: **Deploy from a branch** → `gh-pages` / `(root)`.
+Without a custom domain the site is at `https://gordbond.github.io/art_catalog/`.
 
 ### Connecting gordbondart.com (GoDaddy)
 

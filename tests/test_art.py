@@ -117,3 +117,18 @@ def test_unknown_config_key(tmp_path):
     (tmp_path / "site.toml").write_text("titel = 'x'\n")
     with pytest.raises(Exception, match="unknown"):
         load_config(tmp_path)
+
+
+def test_deploy_pushes_only_built_site(project, tmp_path):
+    import subprocess
+
+    bare = tmp_path / "remote.git"
+    subprocess.run(["git", "init", "-q", "--bare", str(bare)], check=True)
+    subprocess.run(["git", "init", "-q", "-b", "main", str(project)], check=True)
+    for args in (["remote", "add", "origin", str(bare)], ["config", "user.name", "T"], ["config", "user.email", "t@example.com"]):
+        subprocess.run(["git", "-C", str(project), *args], check=True)
+    assert main(["--root", str(project), "deploy"]) == 0
+    files = subprocess.run(["git", "-C", str(bare), "ls-tree", "-r", "--name-only", "gh-pages"],
+                           capture_output=True, text=True, check=True).stdout.split()
+    assert "index.html" in files and "img/studio-big.jpg" in files
+    assert not any(f.startswith("paintings/") for f in files)

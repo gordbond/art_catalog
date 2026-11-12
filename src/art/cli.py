@@ -89,6 +89,19 @@ def cmd_build(args: argparse.Namespace, catalog: Catalog, config: SiteConfig) ->
     return 0
 
 
+def cmd_deploy(args: argparse.Namespace, catalog: Catalog, config: SiteConfig) -> int:
+    from .deploy import DeployError, deploy
+
+    cmd_build(argparse.Namespace(out="dist", clean=True, prices=None, root=args.root), catalog, config)
+    try:
+        remote = deploy(args.root, args.root / "dist")
+    except DeployError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 1
+    print(f"Pushed dist/ to the gh-pages branch of {remote}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="art", description="Manage the painting inventory.")
     parser.add_argument("--root", type=Path, default=Path.cwd(), help="project folder containing paintings/ (default: current directory)")
@@ -113,6 +126,9 @@ def build_parser() -> argparse.ArgumentParser:
                          help="show or hide prices (default: show_prices in site.toml)")
     p_build.add_argument("--clean", action="store_true", help="delete the output folder first")
     p_build.set_defaults(func=cmd_build)
+
+    p_deploy = sub.add_parser("deploy", help="build, then publish dist/ to the gh-pages branch of origin")
+    p_deploy.set_defaults(func=cmd_deploy)
     return parser
 
 

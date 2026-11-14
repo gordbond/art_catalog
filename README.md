@@ -27,10 +27,26 @@ pytest
   `file` is the path under `paintings/` (e.g. `agh/flower.png`); its first folder is the category.
   `status` is one of `available`, `sold`, `on_hold`. Price may be blank.
   Filename case must match exactly (GitHub's servers are case-sensitive; `art check` flags this).
-- `site.toml` (committed, so public): title, tagline, domain, `show_prices`, `currency`, `logo`/`logo_width`,
+- `site.toml` (committed, so public): title, tagline, domain, `show_prices`, `currency`, `logo`/`logo_width`, `about`/`about_photo`,
   `category_label`, `[[categories]]` (key, label, optional `link` + `link_label`) and `[[size_buckets]]`.
   Leave `[[categories]]` out and the folders in `paintings/` are used, labelled from their names.
 - `site.local.toml` (git-ignored, optional): overrides `site.toml`. Keep `contact_email` here so it never lands in the public repo.
+
+## About page
+
+Write your statement and bio in a Markdown file, for example `about.md`:
+
+```markdown
+## Artist statement
+Text about the work...
+
+## Bio
+Text about you... [links](https://example.com) and *italics* work.
+```
+
+Then set `about = "about.md"` in `site.toml` (and optionally `about_photo = "portrait.jpg"`). The build adds
+`about.html` and "Gallery / About" links in the header. To switch it off, set `about = ""`; the page and photo
+are removed from `dist/` on the next build.
 
 ## Using this for another artist
 

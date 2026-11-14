@@ -209,3 +209,28 @@ def test_missing_logo_is_a_config_error(tmp_path):
     (tmp_path / "site.toml").write_text('logo = "nope.png"\n')
     with pytest.raises(Exception, match="logo file not found"):
         load_config(tmp_path)
+
+
+def test_about_page_on_and_off(project):
+    Image.new("RGB", (400, 600), "blue").save(project / "me.jpg")
+    (project / "about.md").write_text("## Artist statement\n\nI paint *loudly*. See [here](https://example.com).\n")
+    (project / "site.toml").write_text('about = "about.md"\nabout_photo = "me.jpg"\n')
+    main(["--root", str(project), "build"])
+    dist = project / "dist"
+    about = (dist / "about.html").read_text()
+    assert "<h2>Artist statement</h2>" in about and "<em>loudly</em>" in about
+    assert 'href="https://example.com"' in about and 'src="assets/about.jpg"' in about
+    assert "grid" not in about and 'aria-current="page"' in about
+    assert 'href="about.html"' in (dist / "index.html").read_text()
+    assert (dist / "assets" / "about.jpg").exists()
+
+    (project / "site.toml").write_text('about = ""\n')  # switched off: stale page and photo are removed
+    main(["--root", str(project), "build"])
+    assert not (dist / "about.html").exists() and not (dist / "assets" / "about.jpg").exists()
+    assert "about.html" not in (dist / "index.html").read_text()
+
+
+def test_missing_about_file_is_a_config_error(tmp_path):
+    (tmp_path / "site.toml").write_text('about = "nope.md"\n')
+    with pytest.raises(Exception, match="about file not found"):
+        load_config(tmp_path)

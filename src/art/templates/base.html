@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>{% block title %}{{ config.title }} — {{ config.tagline }}{% endblock %}</title>
+  {% block meta %}
+  <meta name="description" content="{{ config.tagline }} by {{ config.title }}.">
+  <meta property="og:title" content="{{ config.title }} — {{ config.tagline }}">
+  {% endblock %}
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="site-header">
+    {% set mark %}{% if logo %}<img class="logo" src="{{ logo.src }}" alt="{{ config.title }}"{% if logo.w %} width="{{ logo.w }}" height="{{ logo.h }}"{% endif %} style="width: min({{ config.logo_width }}px, 70vw)">{% else %}{{ config.title }}{% endif %}{% endset %}
+    <h1>{% if page == 'about' %}<a href="index.html">{{ mark }}</a>{% else %}{{ mark }}{% endif %}</h1>
+    <p class="tagline">{{ config.tagline }}</p>
+    {% if has_about or contact_encoded %}
+    <nav class="site-nav" aria-label="Site">
+      {% if has_about %}
+      <a href="index.html"{% if page != 'about' %} aria-current="page"{% endif %}>Gallery</a>
+      <a href="about.html"{% if page == 'about' %} aria-current="page"{% endif %}>About</a>
+      {% endif %}
+      {% if contact_encoded %}<a data-e="{{ contact_encoded }}" hidden>Inquiries</a><noscript>Inquiries: {{ contact_fallback }}</noscript>{% endif %}
+    </nav>
+    {% endif %}
+  </header>
+
+{% block content %}{% endblock %}
+
+  <footer class="site-footer">© {{ config.title }}</footer>
+  <script src="assets/app.js"></script>
+</body>
+</html>

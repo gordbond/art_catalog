@@ -11,6 +11,11 @@ contact_email = ""
 logo = "logo.png"
 logo_width = 260
 
+# About page (artist statement and/or bio). Point `about` at a Markdown file to switch it on;
+# leave it blank to switch it off. `about_photo` is an optional picture for the page.
+about = ""
+about_photo = ""
+
 # What the sub-folders of paintings/ are called, and how they appear as filters.
 category_label = "Location"
 

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}About — {{ config.title }}{% endblock %}
+{% block meta %}
+  <meta name="description" content="About {{ config.title }}.">
+  <meta property="og:title" content="About — {{ config.title }}">
+  {% if photo %}<meta property="og:image" content="{{ photo.src }}">{% endif %}
+{% endblock %}
+
+{% block content %}
+  <main class="about">
+    {% if photo %}
+    <img class="about-photo" src="{{ photo.src }}" width="{{ photo.w }}" height="{{ photo.h }}" alt="{{ config.title }}">
+    {% endif %}
+    <div class="prose">{{ about_html|safe }}</div>
+  </main>
+{% endblock %}

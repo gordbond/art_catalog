@@ -6,6 +6,8 @@
     contact.hidden = false;
   }
 
+  if (!document.querySelector(".grid")) return; // e.g. the About page: nothing to filter
+
   const works = [...document.querySelectorAll(".work")];
   const chips = [...document.querySelectorAll("[data-filter-location] button")];
   const sizeSel = document.getElementById("size-filter");

@@ -51,6 +51,8 @@ class SiteConfig:
     contact_email: str = ""
     logo: str = ""  # image path relative to the project folder; blank shows the title as text
     logo_width: int = 260  # displayed width in px
+    about: str = ""  # Markdown file for the About page (bio, statement); blank = no About page
+    about_photo: str = ""  # optional photo for the About page
     category_label: str = "Location"  # what to call categories in the CLI and filter bar
     categories: list[Category] = field(default_factory=list)  # blank: use the folders in paintings/
     size_buckets: list[SizeBucket] = field(default_factory=_default_buckets)
@@ -92,6 +94,8 @@ def load_config(root: Path) -> SiteConfig:
     keys = [c.key for c in config.categories]
     if len(keys) != len(set(keys)):
         raise ConfigError("site.toml: duplicate category key in [[categories]]")
-    if config.logo and not (root / config.logo).is_file():
-        raise ConfigError(f"site.toml: logo file not found: {root / config.logo}")
+    for setting in ("logo", "about", "about_photo"):
+        value = getattr(config, setting)
+        if value and not (root / value).is_file():
+            raise ConfigError(f"site.toml: {setting} file not found: {root / value}")
     return config

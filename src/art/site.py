@@ -16,6 +16,7 @@ from .images import save_resized
 HERE = Path(__file__).parent
 FULL_SIDE = 1800
 THUMB_SIDE = 700
+ABOUT_PHOTO_SIDE = 1200
 
 @dataclass
 class BuildResult:
@@ -52,6 +53,26 @@ def _copy_logo(root: Path, config: SiteConfig, out: Path) -> dict | None:
     return {"src": f"assets/{dest.name}", "w": size[0], "h": size[1]}
 
 
+def _build_about(root: Path, config: SiteConfig, env: Environment, common: dict, out: Path) -> None:
+    """Write about.html (and its photo) when `about` is set; remove them when it's switched off."""
+    page, photo_file = out / "about.html", out / "assets" / "about.jpg"
+    if not config.about:
+        page.unlink(missing_ok=True)
+        photo_file.unlink(missing_ok=True)
+        return
+    import markdown
+
+    photo = None
+    if config.about_photo:
+        w, h = save_resized(root / config.about_photo, photo_file, ABOUT_PHOTO_SIDE)
+        photo = {"src": "assets/about.jpg", "w": w, "h": h}
+    else:
+        photo_file.unlink(missing_ok=True)
+    body = markdown.markdown((root / config.about).read_text(encoding="utf-8"))
+    html = env.get_template("about.html").render(**common, page="about", about_html=body, photo=photo)
+    page.write_text(html, encoding="utf-8")
+
+
 def build_site(catalog: Catalog, config: SiteConfig, out: Path, *, show_prices: bool) -> BuildResult:
     out.mkdir(parents=True, exist_ok=True)
     rendered = 0
@@ -84,19 +105,25 @@ def build_site(catalog: Catalog, config: SiteConfig, out: Path, *, show_prices: 
 
     categories = [c for c in config.categories if any(w["p"].location == c.key for w in works)]
     env = Environment(loader=FileSystemLoader(HERE / "templates"), autoescape=True)
-    html = env.get_template("index.html").render(
+    common = dict(
         config=config,
         contact_encoded=base64.b64encode(config.contact_email.encode()).decode() if config.contact_email else "",
         contact_fallback=config.contact_email.replace("@", " [at] ").replace(".", " [dot] "),
+        logo=_copy_logo(catalog.root, config, out),
+        has_about=bool(config.about),
+    )
+    html = env.get_template("index.html").render(
+        **common,
+        page="home",
         works=works,
         categories=categories,
         size_buckets=[(f"b{i}", b.label, b.min, b.max) for i, b in enumerate(config.size_buckets)],
-        logo=_copy_logo(catalog.root, config, out),
     )
     (out / "index.html").write_text(html, encoding="utf-8")
 
     assets = out / "assets"
     assets.mkdir(exist_ok=True)
+    _build_about(catalog.root, config, env, common, out)
     for name in ("style.css", "app.js"):
         shutil.copy(HERE / "static" / name, assets / name)
 

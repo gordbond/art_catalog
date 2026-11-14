@@ -1,24 +1,10 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="light">
-  <title>{{ config.title }} — {{ config.tagline }}</title>
-  <meta name="description" content="{{ config.tagline }} by {{ config.title }}.">
-  <meta property="og:title" content="{{ config.title }} — {{ config.tagline }}">
+{% extends "base.html" %}
+{% block meta %}
+  {{ super() }}
   {% if works %}<meta property="og:image" content="{{ works[0].thumb }}">{% endif %}
-  <link rel="stylesheet" href="assets/style.css">
-</head>
-<body>
-  <header class="site-header">
-    <h1>{% if logo %}<img class="logo" src="{{ logo.src }}" alt="{{ config.title }}"{% if logo.w %} width="{{ logo.w }}" height="{{ logo.h }}"{% endif %} style="width: min({{ config.logo_width }}px, 70vw)">{% else %}{{ config.title }}{% endif %}</h1>
-    <p class="tagline">{{ config.tagline }}</p>
-    {% if contact_encoded %}
-    <p class="contact"><a data-e="{{ contact_encoded }}" hidden>Inquiries</a><noscript>Inquiries: {{ contact_fallback }}</noscript></p>
-    {% endif %}
-  </header>
+{% endblock %}
 
+{% block content %}
   <form class="filters" onsubmit="return false" aria-label="Filter works">
     {% if categories|length > 1 %}
     <div class="filter-group" data-filter-location role="group" aria-label="{{ config.category_label }}">
@@ -73,8 +59,4 @@
     <button type="button" class="lb-btn lb-next" aria-label="Next">›</button>
     <button type="button" class="lb-btn lb-close" aria-label="Close">×</button>
   </dialog>
-
-  <footer class="site-footer">© {{ config.title }}</footer>
-  <script src="assets/app.js"></script>
-</body>
-</html>
+{% endblock %}

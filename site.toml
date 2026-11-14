@@ -1,8 +1,11 @@
 # Settings for `art build`. Prices stay hidden on the public site unless you flip this.
 title = "Gord Bond"
-tagline = "Paintings"
+tagline = "Hamilton, Ontario - Painter"
 domain = "gordbondart.com"
-show_prices = false
+show_prices = true
 currency = "$"
 # Shown as an "Inquiries" link on the site. Leave blank to omit it.
+# This file is public on GitHub, so put the real address in site.local.toml (git-ignored).
 contact_email = ""
+# Collection page for AGH works; shown as a link on each available AGH painting. Leave blank to omit.
+agh_url = "https://aghartsales.com/collections/gord-bond"

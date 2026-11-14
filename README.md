@@ -26,7 +26,8 @@ pytest
 - `paintings/catalog.csv`: `file,title,medium,width_in,height_in,year,status,price`.
   `file` is the path under `paintings/` (e.g. `agh/flower.png`) and its first folder *is* the location.
   Price may be blank. Filename case must match exactly (GitHub's servers are case-sensitive; `art check` flags this).
-- `site.toml`: site title, tagline, domain, `show_prices`, optional `contact_email`.
+- `site.toml`: site title, tagline, domain, `show_prices`, `agh_url`. Committed, so public.
+- `site.local.toml` (git-ignored, optional): overrides `site.toml`. Keep `contact_email` here so it never lands in the public repo.
 
 ## Publishing on GitHub Pages
 

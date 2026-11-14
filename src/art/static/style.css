@@ -4,10 +4,8 @@
   --muted: #6b6b66;
   --line: #deded8;
   --accent: #1d1d1b;
+  color-scheme: light; /* always light, even when the visitor's device is in dark mode */
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-}
-@media (prefers-color-scheme: dark) {
-  :root { --bg: #151514; --fg: #ecece8; --muted: #9a9a94; --line: #34342f; --accent: #ecece8; }
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--fg); line-height: 1.5; }
@@ -15,6 +13,7 @@ a { color: inherit; }
 .site-header, .filters, main, .site-footer { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
 .site-header { padding-top: 48px; padding-bottom: 8px; }
 h1 { font-family: Georgia, "Times New Roman", serif; font-weight: 400; font-size: 2.2rem; margin: 0; letter-spacing: .01em; }
+.logo { display: block; width: min(260px, 70vw); height: auto; }
 .tagline { margin: 4px 0 0; color: var(--muted); }
 
 .filters { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; padding-top: 20px; padding-bottom: 20px; }
@@ -29,13 +28,16 @@ select { border-radius: 8px; padding: 6px 10px; background: var(--bg); }
 button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .count { margin: 0 0 0 auto; color: var(--muted); font-size: .9rem; }
 
-.grid { columns: 3 280px; column-gap: 28px; }
-.work { break-inside: avoid; margin: 0 0 36px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 36px 28px; align-items: start; }
+.work { margin: 0; }
 .work[hidden] { display: none; }
-.work img { display: block; width: 100%; height: auto; background: var(--line); }
+/* Square, center-cropped thumbnails; the lightbox shows the whole painting. */
+.work img { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; background: var(--line); }
 .caption h2 { font-family: Georgia, serif; font-weight: 400; font-size: 1.1rem; margin: 10px 0 2px; }
 .caption p { margin: 0; color: var(--muted); font-size: .9rem; }
 .caption .status { margin-top: 4px; }
+.caption .buy { margin-top: 6px; }
+.caption .buy a { color: var(--fg); }
 .caption .sold { color: #a33; }
 .caption .hold { color: #a66a00; }
 .empty { text-align: center; color: var(--muted); padding: 64px 0; }

@@ -9,3 +9,4 @@ imgs/
 paintings/studio/*
 paintings/agh/*
 !paintings/*/.gitkeep
+site.local.toml

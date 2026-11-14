@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
   <title>{{ config.title }} — {{ config.tagline }}</title>
   <meta name="description" content="{{ config.tagline }} by {{ config.title }}.">
   <meta property="og:title" content="{{ config.title }} — {{ config.tagline }}">
@@ -11,9 +12,11 @@
 </head>
 <body>
   <header class="site-header">
-    <h1>{{ config.title }}</h1>
+    <h1><img class="logo" src="assets/logo.png" alt="{{ config.title }}" width="598" height="163"></h1>
     <p class="tagline">{{ config.tagline }}</p>
-    {% if config.contact_email %}<p><a href="mailto:{{ config.contact_email }}">Inquiries</a></p>{% endif %}
+    {% if contact_encoded %}
+    <p class="contact"><a data-e="{{ contact_encoded }}" hidden>Inquiries</a><noscript>Inquiries: {{ contact_fallback }}</noscript></p>
+    {% endif %}
   </header>
 
   <form class="filters" onsubmit="return false" aria-label="Filter works">
@@ -50,6 +53,9 @@
           <p>{{ p.medium }}{% if p.medium %}<br>{% endif %}{{ p.size_label }}{% if p.year %}, {{ p.year }}{% endif %}</p>
           {% if p.status_label or w.price %}
           <p class="status{% if p.status == 'sold' %} sold{% elif p.status == 'on_hold' %} hold{% endif %}">{{ p.status_label }}{% if p.status_label and w.price %} · {% endif %}{{ w.price }}</p>
+          {% endif %}
+          {% if config.agh_url and p.location == 'agh' and p.status != 'sold' %}
+          <p class="buy"><a href="{{ config.agh_url }}" target="_blank" rel="noopener">View at AGH Art Sales ↗</a></p>
           {% endif %}
         </div>
       </article>

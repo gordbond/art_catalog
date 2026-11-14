@@ -1,4 +1,11 @@
 (() => {
+  // The address is shipped base64-encoded so scrapers don't find it in the HTML.
+  const contact = document.querySelector("[data-e]");
+  if (contact) {
+    contact.href = "mailto:" + atob(contact.dataset.e);
+    contact.hidden = false;
+  }
+
   const works = [...document.querySelectorAll(".work")];
   const chips = [...document.querySelectorAll("[data-filter-location] button")];
   const sizeSel = document.getElementById("size-filter");

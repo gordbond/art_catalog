@@ -1,6 +1,7 @@
 """Static gallery generator: resized images + a single Jinja2-rendered page."""
 from __future__ import annotations
 
+import base64
 import re
 import shutil
 from dataclasses import dataclass
@@ -80,6 +81,8 @@ def build_site(catalog: Catalog, config: SiteConfig, out: Path, *, show_prices: 
     env = Environment(loader=FileSystemLoader(HERE / "templates"), autoescape=True)
     html = env.get_template("index.html").render(
         config=config,
+        contact_encoded=base64.b64encode(config.contact_email.encode()).decode() if config.contact_email else "",
+        contact_fallback=config.contact_email.replace("@", " [at] ").replace(".", " [dot] "),
         works=works,
         locations=[(loc, LOCATION_LABELS[loc]) for loc in locations],
         size_buckets=[
@@ -90,7 +93,7 @@ def build_site(catalog: Catalog, config: SiteConfig, out: Path, *, show_prices: 
 
     assets = out / "assets"
     assets.mkdir(exist_ok=True)
-    for name in ("style.css", "app.js"):
+    for name in ("style.css", "app.js", "logo.png"):
         shutil.copy(HERE / "static" / name, assets / name)
 
     (out / ".nojekyll").touch()

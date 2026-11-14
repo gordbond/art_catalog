@@ -107,10 +107,21 @@ def test_build(project):
     assert (dist / "img" / "studio-big.jpg").exists() and (dist / "thumb" / "agh-small.jpg").exists()
     assert (dist / ".nojekyll").exists()
 
-    (project / "site.toml").write_text('domain = "example.com"\n')
+    (project / "site.toml").write_text(
+        'domain = "example.com"\ncontact_email = "me@example.org"\nagh_url = "https://agh.example/c"\n')
     main(["--root", str(project), "build"])
     assert "$100" not in (dist / "index.html").read_text()  # prices hidden by default
     assert (dist / "CNAME").read_text().strip() == "example.com"
+    html = (dist / "index.html").read_text()
+    assert "me@example.org" not in html and "mailto:" not in html  # address is encoded, not in the HTML
+    assert "bWVAZXhhbXBsZS5vcmc=" in html and "me [at] example [dot] org" in html
+
+
+def test_local_config_overrides(tmp_path):
+    (tmp_path / "site.toml").write_text('title = "A"\ncontact_email = ""\n')
+    (tmp_path / "site.local.toml").write_text('contact_email = "me@example.org"\n')
+    cfg = load_config(tmp_path)
+    assert cfg.title == "A" and cfg.contact_email == "me@example.org"
 
 
 def test_unknown_config_key(tmp_path):
@@ -132,3 +143,17 @@ def test_deploy_pushes_only_built_site(project, tmp_path):
                            capture_output=True, text=True, check=True).stdout.split()
     assert "index.html" in files and "img/studio-big.jpg" in files
     assert not any(f.startswith("paintings/") for f in files)
+
+
+def test_agh_link_only_on_available_agh_works(tmp_path):
+    make_project(
+        tmp_path,
+        [{"file": "agh/a.png", "title": "A", "width_in": "10", "height_in": "10"},
+         {"file": "agh/b.png", "title": "B", "width_in": "10", "height_in": "10", "status": "sold"},
+         {"file": "studio/c.png", "title": "C", "width_in": "10", "height_in": "10"}],
+        {"agh/a.png": (50, 50), "agh/b.png": (50, 50), "studio/c.png": (50, 50)},
+    )
+    (tmp_path / "site.toml").write_text('agh_url = "https://agh.example/c"\n')
+    main(["--root", str(tmp_path), "build"])
+    html = (tmp_path / "dist" / "index.html").read_text()
+    assert html.count("https://agh.example/c") == 1

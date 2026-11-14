@@ -2,7 +2,7 @@
 
 ```
 art list                       # everything
-art list --location agh        # studio | agh
+art list --location agh        # any category folder (alias: --category)
 art list --status sold
 art list --max-size 30         # longest side ≤ 30"
 art list --min-size 40 --pdf   # big works as art-catalog.pdf (or --pdf my.pdf)
@@ -22,12 +22,28 @@ pytest
 
 ## Data
 
-- Images go in `paintings/studio/` or `paintings/agh/`.
+- Images go in a sub-folder of `paintings/` per category (e.g. `studio/`, `agh/`, or `prints/`, `drawings/`).
 - `paintings/catalog.csv`: `file,title,medium,width_in,height_in,year,status,price`.
-  `file` is the path under `paintings/` (e.g. `agh/flower.png`) and its first folder *is* the location.
-  Price may be blank. Filename case must match exactly (GitHub's servers are case-sensitive; `art check` flags this).
-- `site.toml`: site title, tagline, domain, `show_prices`, `agh_url`. Committed, so public.
+  `file` is the path under `paintings/` (e.g. `agh/flower.png`); its first folder is the category.
+  `status` is one of `available`, `sold`, `on_hold`. Price may be blank.
+  Filename case must match exactly (GitHub's servers are case-sensitive; `art check` flags this).
+- `site.toml` (committed, so public): title, tagline, domain, `show_prices`, `currency`, `logo`/`logo_width`,
+  `category_label`, `[[categories]]` (key, label, optional `link` + `link_label`) and `[[size_buckets]]`.
+  Leave `[[categories]]` out and the folders in `paintings/` are used, labelled from their names.
 - `site.local.toml` (git-ignored, optional): overrides `site.toml`. Keep `contact_email` here so it never lands in the public repo.
+
+## Using this for another artist
+
+The tool is the same for everyone; only the folder differs. In a new folder (its own git repo):
+
+1. `paintings/<category>/` image folders and `paintings/catalog.csv`.
+2. `site.toml` with their name, tagline, domain, categories, size buckets (prints may want smaller ones) and a `logo` file
+   (or leave `logo` blank to show their name as text).
+3. `art check`, then `art build` to preview `dist/index.html`.
+4. Create their GitHub repo, `git remote add origin ...`, push `main`, run `art deploy`, then set Pages to `gh-pages`
+   and add their domain's DNS records (see below).
+
+Run `art` from that folder, or pass `--root /path/to/their/folder`.
 
 ## Publishing on GitHub Pages
 

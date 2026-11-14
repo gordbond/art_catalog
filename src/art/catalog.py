@@ -5,8 +5,6 @@ import csv
 from dataclasses import dataclass, field
 from pathlib import Path
 
-LOCATIONS = ("studio", "agh")
-LOCATION_LABELS = {"studio": "Studio", "agh": "AGH"}
 STATUSES = ("available", "sold", "on_hold")
 STATUS_LABELS = {"available": "Available", "sold": "Sold", "on_hold": "On hold"}
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".tif", ".tiff"}

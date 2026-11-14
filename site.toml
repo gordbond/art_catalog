@@ -1,11 +1,40 @@
-# Settings for `art build`. Prices stay hidden on the public site unless you flip this.
+# Settings for `art build`. This file is committed (public); private overrides go in site.local.toml.
 title = "Gord Bond"
 tagline = "Hamilton, Ontario - Painter"
 domain = "gordbondart.com"
 show_prices = true
 currency = "$"
-# Shown as an "Inquiries" link on the site. Leave blank to omit it.
-# This file is public on GitHub, so put the real address in site.local.toml (git-ignored).
+# Shown as an "Inquiries" link. Keep the real address in site.local.toml (git-ignored), not here.
 contact_email = ""
-# Collection page for AGH works; shown as a link on each available AGH painting. Leave blank to omit.
-agh_url = "https://aghartsales.com/collections/gord-bond"
+
+# Header logo, relative to this folder. Leave blank to show the title as text instead.
+logo = "logo.png"
+logo_width = 260
+
+# What the sub-folders of paintings/ are called, and how they appear as filters.
+category_label = "Location"
+
+[[categories]]
+key = "studio"
+label = "Studio"
+
+[[categories]]
+key = "agh"
+label = "AGH"
+# Optional: shown as a link on each available work in this category.
+link = "https://aghartsales.com/collections/gord-bond"
+link_label = "View at AGH Art Sales"
+
+# Size filters on the site, by longest side in inches (min is exclusive, max inclusive).
+[[size_buckets]]
+label = "Small (up to 24 in)"
+max = 24
+
+[[size_buckets]]
+label = "Medium (over 24 to 40 in)"
+min = 24
+max = 40
+
+[[size_buckets]]
+label = "Large (over 40 in)"
+min = 40

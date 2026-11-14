@@ -13,7 +13,7 @@ a { color: inherit; }
 .site-header, .filters, main, .site-footer { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
 .site-header { padding-top: 48px; padding-bottom: 8px; }
 h1 { font-family: Georgia, "Times New Roman", serif; font-weight: 400; font-size: 2.2rem; margin: 0; letter-spacing: .01em; }
-.logo { display: block; width: min(260px, 70vw); height: auto; }
+.logo { display: block; height: auto; }
 .tagline { margin: 4px 0 0; color: var(--muted); }
 
 .filters { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; padding-top: 20px; padding-bottom: 20px; }

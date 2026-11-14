@@ -12,7 +12,8 @@ from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import inch
 from reportlab.platypus import Image, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
-from .catalog import LOCATION_LABELS, Catalog, Painting, format_price
+from .catalog import Catalog, Painting, format_price
+from .config import SiteConfig
 from .images import jpeg_bytes
 
 THUMB_BOX = 1.8 * inch
@@ -23,11 +24,11 @@ def write_pdf(
     paintings: list[Painting],
     out: Path,
     *,
-    title: str,
+    config: SiteConfig,
     subtitle: str = "",
     show_prices: bool = False,
-    currency: str = "$",
 ) -> None:
+    title, currency = config.title, config.currency
     styles = getSampleStyleSheet()
     name = ParagraphStyle("name", parent=styles["Heading3"], spaceAfter=2)
     body = ParagraphStyle("body", parent=styles["BodyText"], leading=13, textColor=colors.HexColor("#333333"))
@@ -57,7 +58,7 @@ def write_pdf(
         status = p.status_label
         if show_prices and p.price is not None:
             status = f"{status} · {format_price(p.price, currency)}" if status else format_price(p.price, currency)
-        details.append(Paragraph(escape(f"{LOCATION_LABELS.get(p.location, p.location)} · {status}".rstrip(" ·")), muted))
+        details.append(Paragraph(escape(f"{config.category(p.location).label} · {status}".rstrip(" ·")), muted))
         rows.append([thumb, details])
 
     if rows:

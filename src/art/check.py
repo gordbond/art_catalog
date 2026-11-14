@@ -3,7 +3,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from .catalog import IMAGE_EXTS, LOCATIONS, STATUSES, Catalog
+from .catalog import IMAGE_EXTS, STATUSES, Catalog
+from .config import SiteConfig
 from .images import upright_size
 
 ASPECT_TOLERANCE = 0.10  # photos are rarely cropped exactly to the canvas
@@ -29,7 +30,9 @@ def _disk_images(catalog: Catalog) -> dict[str, str]:
     return found
 
 
-def run_checks(catalog: Catalog) -> list[Finding]:
+def run_checks(catalog: Catalog, config: SiteConfig) -> list[Finding]:
+    keys = [c.key for c in config.categories]
+    folders = " and ".join(k + "/" for k in keys)
     findings = [Finding("error", msg) for msg in catalog.problems]
     on_disk = _disk_images(catalog)
     by_lower = {k.lower(): k for k in on_disk}
@@ -37,8 +40,8 @@ def run_checks(catalog: Catalog) -> list[Finding]:
     case_matched: set[str] = set()
 
     for p in catalog.paintings:
-        if p.location not in LOCATIONS:
-            findings.append(Finding("error", f"{p.file}: must be under {' or '.join(l + '/' for l in LOCATIONS)}"))
+        if p.location not in keys:
+            findings.append(Finding("error", f"{p.file}: must be under {folders}"))
         if p.file not in on_disk:
             actual = by_lower.get(p.file.lower())
             if actual:
@@ -67,8 +70,8 @@ def run_checks(catalog: Catalog) -> list[Finding]:
     for key in sorted(on_disk):
         if key in listed or key in case_matched:
             continue
-        if key.split("/", 1)[0].lower() not in LOCATIONS or "/" not in key:
-            findings.append(Finding("warning", f"{key}: image is outside studio/ and agh/, ignored"))
+        if key.split("/", 1)[0].lower() not in keys or "/" not in key:
+            findings.append(Finding("warning", f"{key}: image is outside {folders}, ignored"))
         else:
             findings.append(Finding("error", f"{key}: image on disk but not in CSV"))
     return findings

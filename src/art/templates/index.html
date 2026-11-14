@@ -12,7 +12,7 @@
 </head>
 <body>
   <header class="site-header">
-    <h1><img class="logo" src="assets/logo.png" alt="{{ config.title }}" width="598" height="163"></h1>
+    <h1>{% if logo %}<img class="logo" src="{{ logo.src }}" alt="{{ config.title }}"{% if logo.w %} width="{{ logo.w }}" height="{{ logo.h }}"{% endif %} style="width: min({{ config.logo_width }}px, 70vw)">{% else %}{{ config.title }}{% endif %}</h1>
     <p class="tagline">{{ config.tagline }}</p>
     {% if contact_encoded %}
     <p class="contact"><a data-e="{{ contact_encoded }}" hidden>Inquiries</a><noscript>Inquiries: {{ contact_fallback }}</noscript></p>
@@ -20,11 +20,11 @@
   </header>
 
   <form class="filters" onsubmit="return false" aria-label="Filter works">
-    {% if locations|length > 1 %}
-    <div class="filter-group" data-filter-location role="group" aria-label="Location">
+    {% if categories|length > 1 %}
+    <div class="filter-group" data-filter-location role="group" aria-label="{{ config.category_label }}">
       <button type="button" data-value="all" aria-pressed="true">All</button>
-      {% for key, label in locations %}
-      <button type="button" data-value="{{ key }}" aria-pressed="false">{{ label }}</button>
+      {% for c in categories %}
+      <button type="button" data-value="{{ c.key }}" aria-pressed="false">{{ c.label }}</button>
       {% endfor %}
     </div>
     {% endif %}
@@ -54,8 +54,8 @@
           {% if p.status_label or w.price %}
           <p class="status{% if p.status == 'sold' %} sold{% elif p.status == 'on_hold' %} hold{% endif %}">{{ p.status_label }}{% if p.status_label and w.price %} · {% endif %}{{ w.price }}</p>
           {% endif %}
-          {% if config.agh_url and p.location == 'agh' and p.status != 'sold' %}
-          <p class="buy"><a href="{{ config.agh_url }}" target="_blank" rel="noopener">View at AGH Art Sales ↗</a></p>
+          {% if w.category.link and p.status != 'sold' %}
+          <p class="buy"><a href="{{ w.category.link }}" target="_blank" rel="noopener">{{ w.category.link_label }} ↗</a></p>
           {% endif %}
         </div>
       </article>

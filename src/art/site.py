@@ -9,21 +9,13 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
 
-from .catalog import LOCATION_LABELS, Catalog, Painting, format_price
+from .catalog import Catalog, Painting, format_price
 from .config import SiteConfig
 from .images import save_resized
 
 HERE = Path(__file__).parent
 FULL_SIDE = 1800
 THUMB_SIDE = 700
-
-# (label, exclusive min, inclusive max) on the longest side, in inches.
-SIZE_BUCKETS = [
-    ("Small (up to 24 in)", None, 24),
-    ("Medium (over 24 to 40 in)", 24, 40),
-    ("Large (over 40 in)", 40, None),
-]
-
 
 @dataclass
 class BuildResult:
@@ -47,6 +39,19 @@ def _render(src: Path, dst: Path, side: int) -> tuple[tuple[int, int], bool]:
     return save_resized(src, dst, side), True
 
 
+def _copy_logo(root: Path, config: SiteConfig, out: Path) -> dict | None:
+    if not config.logo:
+        return None
+    from PIL import Image
+
+    src = root / config.logo
+    dest = out / "assets" / f"logo{src.suffix.lower()}"
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy(src, dest)
+    size = (None, None) if src.suffix.lower() == ".svg" else Image.open(src).size  # SVG: let CSS size it
+    return {"src": f"assets/{dest.name}", "w": size[0], "h": size[1]}
+
+
 def build_site(catalog: Catalog, config: SiteConfig, out: Path, *, show_prices: bool) -> BuildResult:
     out.mkdir(parents=True, exist_ok=True)
     rendered = 0
@@ -62,7 +67,7 @@ def build_site(catalog: Catalog, config: SiteConfig, out: Path, *, show_prices: 
         keep |= {out / full_rel, out / thumb_rel}
         works.append({
             "p": p,
-            "location_label": LOCATION_LABELS.get(p.location, p.location.upper()),
+            "category": config.category(p.location),
             "full": full_rel,
             "thumb": thumb_rel,
             "tw": tw,
@@ -77,23 +82,22 @@ def build_site(catalog: Catalog, config: SiteConfig, out: Path, *, show_prices: 
                 stale.unlink()
                 removed += 1
 
-    locations = [loc for loc in LOCATION_LABELS if any(w["p"].location == loc for w in works)]
+    categories = [c for c in config.categories if any(w["p"].location == c.key for w in works)]
     env = Environment(loader=FileSystemLoader(HERE / "templates"), autoescape=True)
     html = env.get_template("index.html").render(
         config=config,
         contact_encoded=base64.b64encode(config.contact_email.encode()).decode() if config.contact_email else "",
         contact_fallback=config.contact_email.replace("@", " [at] ").replace(".", " [dot] "),
         works=works,
-        locations=[(loc, LOCATION_LABELS[loc]) for loc in locations],
-        size_buckets=[
-            (f"b{i}", label, lo, hi) for i, (label, lo, hi) in enumerate(SIZE_BUCKETS)
-        ],
+        categories=categories,
+        size_buckets=[(f"b{i}", b.label, b.min, b.max) for i, b in enumerate(config.size_buckets)],
+        logo=_copy_logo(catalog.root, config, out),
     )
     (out / "index.html").write_text(html, encoding="utf-8")
 
     assets = out / "assets"
     assets.mkdir(exist_ok=True)
-    for name in ("style.css", "app.js", "logo.png"):
+    for name in ("style.css", "app.js"):
         shutil.copy(HERE / "static" / name, assets / name)
 
     (out / ".nojekyll").touch()
